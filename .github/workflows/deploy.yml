@@ -2,23 +2,31 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
+# Allow the workflow to publish to Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# One deploy at a time; don't cancel an in-progress deploy
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Pages
+        # enablement:true turns Pages on via the API, so you don't have to flip the
+        # Settings → Pages source toggle by hand.
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/setup-node@v4
         with:
           node-version: 20
