@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Off the ledger — How to Get Rich</title>
+    <meta name="theme-color" content="#f1e6d0" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <style>
+      :root { color-scheme: light; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        min-height: 100svh; overflow: hidden; background: #f1e6d0; color: #20150e;
+        font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased;
+      }
+      .grain { position: fixed; inset: 0; opacity: 0.5; mix-blend-mode: multiply; pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E"); }
+      .mk { position: fixed; width: 18px; height: 18px; }
+      .mk::before, .mk::after { content: ''; position: absolute; background: #20150e; opacity: 0.55; }
+      .mk::before { width: 1px; height: 100%; } .mk::after { height: 1px; width: 100%; }
+      .tl { top: 16px; left: 16px; } .tr { top: 16px; right: 16px; }
+      .bl { bottom: 16px; left: 16px; } .br { bottom: 16px; right: 16px; }
+      .tl::before, .bl::before { left: 0; } .tr::before, .br::before { right: 0; }
+      .tl::after, .tr::after { top: 0; } .bl::after, .br::after { bottom: 0; }
+      .wrap { position: relative; z-index: 2; min-height: 100svh; display: flex; align-items: center; }
+      .inner { padding: 0 clamp(28px, 8vw, 110px); max-width: 62ch; }
+      .eyebrow { font-family: 'Space Mono', ui-monospace, monospace; font-weight: 700; font-size: clamp(0.72rem, 2vw, 0.82rem);
+        letter-spacing: 0.2em; text-transform: uppercase; color: #d62828; }
+      h1 { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; font-weight: 600;
+        font-size: clamp(2.8rem, 11vw, 6.5rem); line-height: 0.92; letter-spacing: -0.03em; margin: 1.2rem 0; }
+      h1 .r { color: #d62828; }
+      .lede { color: #6b5344; font-size: clamp(1.05rem, 2.6vw, 1.4rem); line-height: 1.5; max-width: 36ch; }
+      .back { display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 2.4rem;
+        font-family: 'Space Mono', ui-monospace, monospace; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.06em;
+        text-transform: uppercase; color: #d62828; text-decoration: none; border-bottom: 2px solid #d62828; padding-bottom: 3px; }
+      .back:hover { color: #a51d21; border-color: #a51d21; }
+      .foot { position: fixed; left: clamp(28px,8vw,110px); bottom: clamp(26px,5vw,60px); z-index: 2;
+        font-family: 'Space Mono', ui-monospace, monospace; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.24em;
+        text-transform: uppercase; color: #9a836d; }
+    </style>
+  </head>
+  <body>
+    <div class="grain"></div>
+    <span class="mk tl"></span><span class="mk tr"></span><span class="mk bl"></span><span class="mk br"></span>
+    <div class="wrap">
+      <div class="inner">
+        <p class="eyebrow">404 — off the ledger</p>
+        <h1>Nothing<br /><span class="r">earns here.</span></h1>
+        <p class="lede">This page isn’t part of the thread. The wealth, as ever, is elsewhere — quietly working while you sleep.</p>
+        <a class="back" href="./">← Return to the beginning</a>
+      </div>
+    </div>
+    <p class="foot">The Full Ledger</p>
+  </body>
+</html>

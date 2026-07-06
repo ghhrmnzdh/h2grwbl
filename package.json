@@ -1,0 +1,22 @@
+{
+  "name": "how-to-get-rich",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "An interactive, animated interpretation of Naval Ravikant's How to Get Rich (without getting lucky).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource/space-mono": "^5.2.9",
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.18"
+  }
+}

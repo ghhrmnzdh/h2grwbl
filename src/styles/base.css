@@ -1,0 +1,134 @@
+/* ============================================================
+   Base — reset, paper, grain, crop marks, ink-stamp reveals
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; scrollbar-color: var(--crimson) var(--paper-deep); }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  font-weight: 400;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
+html.is-locked, html.is-locked body { overflow: hidden; height: 100%; touch-action: none; }
+
+img, svg, canvas { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--crimson); color: var(--paper); }
+
+/* — Display type: Fraunces, soft + a little wonk ————————— */
+h1, h2, h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+  font-variation-settings: 'opsz' 144, 'SOFT' var(--fr-soft), 'WONK' var(--fr-wonk);
+  text-wrap: balance;
+}
+
+.mono { font-family: var(--mono); }
+.serif { font-family: var(--display); }
+
+/* Eyebrow / label — Space Mono, the press mark */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--crimson-deep);
+}
+
+.tnum { font-variant-numeric: tabular-nums lining-nums; }
+
+/* — Layout primitives ————————————————————————————— */
+.wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+.prose { max-width: var(--measure); }
+.prose p + p { margin-top: 1.05em; }
+section { position: relative; z-index: var(--z-content); }
+
+/* — Paper grain (multiply over everything) ———————————— */
+.grain {
+  position: fixed; inset: 0; z-index: var(--z-grain);
+  pointer-events: none; opacity: 0.5; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* — Printer's crop marks + registration target ——————————— */
+.marks { position: fixed; inset: 0; z-index: var(--z-marks); pointer-events: none; }
+.mark { position: absolute; width: 18px; height: 18px; }
+.mark::before, .mark::after { content: ''; position: absolute; background: var(--ink); opacity: 0.55; }
+.mark::before { width: 1px; height: 100%; }
+.mark::after { height: 1px; width: 100%; }
+.mark--tl { top: 14px; left: 14px; }
+.mark--tr { top: 14px; right: 14px; }
+.mark--tl::before, .mark--tr::before { top: 0; }
+.mark--tl::after, .mark--tr::after { left: 0; }
+.mark--tl::before { left: 0; } .mark--tl::after { top: 0; }
+.mark--tr::before { right: 0; } .mark--tr::after { top: 0; }
+.mark--bl { bottom: 14px; left: 14px; }
+.mark--br { bottom: 14px; right: 14px; }
+.mark--bl::before { left: 0; bottom: 0; } .mark--bl::after { left: 0; bottom: 0; }
+.mark--br::before { right: 0; bottom: 0; } .mark--br::after { right: 0; bottom: 0; }
+
+/* registration bullseye — reusable print signature */
+.reg { position: relative; display: inline-block; width: 1em; height: 1em; vertical-align: middle; }
+.reg::before, .reg::after { content: ''; position: absolute; background: currentColor; }
+.reg::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-0.5px); }
+.reg::after { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-0.5px); }
+.reg-ring { position: absolute; inset: 18%; border: 1px solid currentColor; border-radius: 50%; }
+
+/* — Halftone utility (crimson dots) ——————————————————— */
+.halftone {
+  background-image: radial-gradient(var(--crimson) 1.1px, transparent 1.4px);
+  background-size: 7px 7px;
+}
+
+/* — Ink-stamp reveals ———————————————————————————————— */
+.reveal { opacity: 0; transform: translateY(16px) scale(0.985); transition: opacity var(--dur-reveal) var(--ease), transform var(--dur-reveal) var(--ease-stamp); }
+.reveal.is-in { opacity: 1; transform: none; }
+.reveal-stagger > * { opacity: 0; transform: translateY(14px); transition: opacity 0.5s var(--ease), transform 0.5s var(--ease-stamp); }
+.reveal-stagger.is-in > * { opacity: 1; transform: none; }
+
+/* a crimson rule that prints across on reveal */
+.ink-rule { height: 3px; background: var(--crimson); transform: scaleX(0); transform-origin: left; }
+.ink-rule.is-in { transform: scaleX(1); transition: transform 0.7s var(--ease); }
+
+/* — a11y ——————————————————————————————————————————— */
+.skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; z-index: 2000; }
+.skip:focus { left: var(--space-s); top: var(--space-s); }
+:focus-visible { outline: 2.5px solid var(--crimson); outline-offset: 3px; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* — Preloader ——————————————————————————————————————— */
+.preloader { position: fixed; inset: 0; z-index: 1000; background: var(--paper); display: grid; place-items: center; }
+.preloader__inner { text-align: center; width: min(420px, 74vw); }
+.preloader__mark {
+  font-family: var(--mono); font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--crimson-deep); font-size: var(--step--1); display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+}
+.preloader__count { font-family: var(--display); font-weight: 600; font-variation-settings: 'opsz' 144, 'SOFT' 60, 'WONK' 1; font-size: clamp(3.5rem, 14vw, 9rem); line-height: 1; color: var(--ink); margin: var(--space-s) 0; font-variant-numeric: tabular-nums; }
+.preloader__bar { height: 4px; background: var(--paper-edge); overflow: hidden; }
+.preloader__bar span { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: var(--crimson); }
+.preloader.is-done { display: none; }
+
+/* — Reduced motion ——————————————————————————————————— */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  .reveal, .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
+  .grain { opacity: 0.35; }
+}
+html.reduce-motion .reveal, html.reduce-motion .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
