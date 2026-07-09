@@ -2,7 +2,8 @@
 //   WEALTH  — an asset keeps banking; the total climbs even while you're idle.  (crimson, rising)
 //   MONEY   — a reservoir that drains unless you keep feeding it; it never compounds. (ink, draining)
 //   STATUS  — a zero-sum see-saw: for one to rise, another must fall. Net stays 0.
-import { clamp, smoothstep, prefersReducedMotion } from '../lib/motion.js'
+import { clamp, prefersReducedMotion } from '../lib/motion.js'
+import { currentLanguage, formatMoney, formatNumber, getVisualCopy, isPersian } from '../data/i18n.js'
 
 const INK = '32,21,14'
 const CRIMSON = '214,40,40'
@@ -26,20 +27,27 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
   resize()
   const repaint = () => { resize(); if (reduced || prefersReducedMotion()) drawScene() }
   window.addEventListener('resize', repaint, { passive: true })
+  window.addEventListener('languagechange', repaint)
 
   const st = { activity: 0, lastY: window.scrollY, t: 0, wealth: 0, fill: 0, money: 940, drips: [], banks: [] }
 
-  const fmt = (n) => Math.floor(n).toLocaleString()
+  const fmt = (n) => formatNumber(Math.floor(n))
+  const fontSans = () => isPersian() ? "'Vazirmatn', 'Noto Sans Arabic', Tahoma, sans-serif" : "'Space Mono', monospace"
+  const fontDisplay = () => isPersian() ? "'Vazirmatn', 'Noto Naskh Arabic', Tahoma, sans-serif" : "'Fraunces Variable', Georgia, serif"
 
   function label(text, x, y, color, size = 13, w = 700) {
-    ctx.font = `${w} ${size}px 'Space Mono', monospace`; ctx.fillStyle = color
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(text, x, y)
+    const rtl = isPersian()
+    ctx.direction = rtl ? 'rtl' : 'ltr'
+    ctx.font = `${w} ${size}px ${fontSans()}`; ctx.fillStyle = color
+    ctx.textAlign = rtl ? 'right' : 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(text, x, y)
   }
   function bigNumber(xRight, y, big, sub, color) {
-    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'
-    ctx.font = `600 ${Math.round(Math.min(56, Math.max(30, W * 0.075)))}px 'Fraunces Variable', Georgia, serif`
+    const rtl = isPersian()
+    ctx.direction = rtl ? 'rtl' : 'ltr'
+    ctx.textAlign = rtl ? 'left' : 'right'; ctx.textBaseline = 'alphabetic'
+    ctx.font = `600 ${Math.round(Math.min(56, Math.max(30, W * 0.075)))}px ${fontDisplay()}`
     ctx.fillStyle = color; ctx.fillText(big, xRight, y)
-    ctx.font = "700 10.5px 'Space Mono', monospace"; ctx.fillStyle = `rgba(${INK},0.6)`
+    ctx.font = `700 10.5px ${fontSans()}`; ctx.fillStyle = `rgba(${INK},0.6)`
     ctx.fillText(sub, xRight, y + 20)
   }
   function coin(x, y, r) {
@@ -48,11 +56,15 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
   }
 
   function drawScene() {
+    const strings = getVisualCopy().threeLane
+    const rtl = currentLanguage() === 'fa'
     ctx.clearRect(0, 0, W, H)
     const laneH = H / 3
     const padX = Math.max(24, W * 0.06)
     const barW = W - padX * 2
     const xR = W - padX
+    const labelX = rtl ? xR : padX
+    const numberX = rtl ? padX : xR
 
     ctx.strokeStyle = `rgba(${INK},0.2)`; ctx.lineWidth = 1
     for (let i = 1; i < 3; i++) { ctx.beginPath(); ctx.moveTo(padX * 0.6, i * laneH); ctx.lineTo(W - padX * 0.6, i * laneH); ctx.stroke() }
@@ -60,9 +72,9 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
     /* ---------- WEALTH ---------- */
     {
       const y0 = 0, cy = laneH * 0.5
-      label('WEALTH', padX, y0 + laneH * 0.2, `rgba(${CRIMSON_D},1)`, 14)
-      label('AN ASSET · EARNS WHILE YOU SLEEP', padX, y0 + laneH * 0.2 + 20, `rgba(${INK},0.55)`, 10.5)
-      bigNumber(xR, cy + laneH * 0.05, fmt(st.wealth), '▲ BANKED WHILE IDLE', `rgba(${CRIMSON},1)`)
+      label(strings.wealth, labelX, y0 + laneH * 0.2, `rgba(${CRIMSON_D},1)`, 14)
+      label(strings.wealthNote, labelX, y0 + laneH * 0.2 + 20, `rgba(${INK},0.55)`, 10.5)
+      bigNumber(numberX, cy + laneH * 0.05, fmt(st.wealth), strings.wealthSub, `rgba(${CRIMSON},1)`)
       const barY = cy + laneH * 0.24, barH = 16
       ctx.strokeStyle = `rgba(${INK},0.85)`; ctx.lineWidth = 2; ctx.strokeRect(padX, barY, barW, barH)
       ctx.fillStyle = `rgba(${CRIMSON},1)`; ctx.fillRect(padX, barY, barW * st.fill, barH)
@@ -71,16 +83,16 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
       coin(padX + 16, barY + barH / 2, 9)
       // coins banking off the right end
       for (const b of st.banks) { const a = clamp(1 - b.t); ctx.globalAlpha = a; coin(padX + barW * st.fill + b.t * 26, barY + barH / 2 - b.t * 30, 6); ctx.globalAlpha = 1 }
-      label('→ WORKS WHILE YOU DON’T', padX + 46, barY - 8, `rgba(${INK},0.4)`, 9.5)
+      label(strings.wealthArrow, rtl ? xR - 46 : padX + 46, barY - 8, `rgba(${INK},0.4)`, 9.5)
     }
 
     /* ---------- MONEY ---------- */
     {
       const y0 = laneH, cy = laneH * 1.5
-      label('MONEY', padX, y0 + laneH * 0.2, `rgba(${INK},0.9)`, 14)
-      label('A CLAIM YOU SPEND · DOESN’T COMPOUND', padX, y0 + laneH * 0.2 + 20, `rgba(${INK},0.55)`, 10.5)
+      label(strings.money, labelX, y0 + laneH * 0.2, `rgba(${INK},0.9)`, 14)
+      label(strings.moneyNote, labelX, y0 + laneH * 0.2 + 20, `rgba(${INK},0.55)`, 10.5)
       const down = st.activity < 0.08
-      bigNumber(xR, cy + laneH * 0.05, '$' + fmt(st.money), down ? '▼ DRAINS WHEN IDLE' : '▲ TOPPING UP…', `rgba(${INK},0.9)`)
+      bigNumber(numberX, cy + laneH * 0.05, formatMoney(Math.floor(st.money)), down ? strings.moneyIdle : strings.moneyActive, `rgba(${INK},0.9)`)
       const barY = cy + laneH * 0.24, barH = 16, lvl = clamp(st.money / 1200)
       ctx.strokeStyle = `rgba(${INK},0.85)`; ctx.lineWidth = 2; ctx.strokeRect(padX, barY, barW, barH)
       ctx.fillStyle = `rgba(${INK},0.5)`; ctx.fillRect(padX, barY, barW * lvl, barH)
@@ -94,9 +106,9 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
     /* ---------- STATUS ---------- */
     {
       const y0 = laneH * 2, cy = laneH * 2.52
-      label('STATUS', padX, y0 + laneH * 0.2, `rgba(${CRIMSON_D},1)`, 14)
-      label('ZERO-SUM · TO RISE, ANOTHER MUST FALL', padX, y0 + laneH * 0.2 + 20, `rgba(${INK},0.55)`, 10.5)
-      bigNumber(xR, cy - laneH * 0.02, '0', 'NET GAIN · SOMEONE LOSES', `rgba(${INK},0.9)`)
+      label(strings.status, labelX, y0 + laneH * 0.2, `rgba(${CRIMSON_D},1)`, 14)
+      label(strings.statusNote, labelX, y0 + laneH * 0.2 + 20, `rgba(${INK},0.55)`, 10.5)
+      bigNumber(numberX, cy - laneH * 0.02, formatNumber(0), strings.statusSub, `rgba(${INK},0.9)`)
       const beamCx = padX + Math.min(barW * 0.42, 230), beamW = Math.min(barW * 0.62, 320)
       const osc = reduced ? 0.17 : Math.sin(st.t * 0.9) * 0.2
       ctx.save(); ctx.translate(beamCx, cy); ctx.rotate(osc)
@@ -104,8 +116,9 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
       ctx.beginPath(); ctx.moveTo(-beamW / 2, 0); ctx.lineTo(beamW / 2, 0); ctx.stroke()
       coin(-beamW / 2, -10, 11); coin(beamW / 2, -10, 11)
       ctx.restore()
-      ctx.textAlign = 'center'; ctx.font = "700 9.5px 'Space Mono', monospace"; ctx.fillStyle = `rgba(${INK},0.6)`
-      ctx.fillText('YOU', beamCx - beamW / 2, cy + 34); ctx.fillText('RIVAL', beamCx + beamW / 2, cy + 34)
+      ctx.direction = rtl ? 'rtl' : 'ltr'
+      ctx.textAlign = 'center'; ctx.font = `700 9.5px ${fontSans()}`; ctx.fillStyle = `rgba(${INK},0.6)`
+      ctx.fillText(strings.you, beamCx - beamW / 2, cy + 34); ctx.fillText(strings.rival, beamCx + beamW / 2, cy + 34)
       ctx.fillStyle = `rgba(${INK},0.9)`; ctx.beginPath(); ctx.moveTo(beamCx - 12, cy + 20); ctx.lineTo(beamCx + 12, cy + 20); ctx.lineTo(beamCx, cy); ctx.closePath(); ctx.fill()
     }
   }

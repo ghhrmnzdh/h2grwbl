@@ -2,8 +2,7 @@
 // Guided reveal lands each magnitude bar; then the sliders make the product live.
 // Any factor near zero collapses the whole thing — the difference between × and +.
 import { clamp } from '../lib/motion.js'
-
-const NAMES = { k: 'Specific knowledge', a: 'Accountability', l: 'Leverage' }
+import { formatNumber, getEquationCopy } from '../data/i18n.js'
 
 export function init(root, { reduced, gsap } = {}) {
   const num = root.querySelector('#eqNum')
@@ -21,16 +20,17 @@ export function init(root, { reduced, gsap } = {}) {
   const setBar = (bar, ratio) => { if (bar) bar.style.width = clamp(ratio) * 100 + '%' }
 
   function render(product) {
-    if (num) num.textContent = Math.round(product).toLocaleString()
+    const copy = getEquationCopy()
+    if (num) num.textContent = formatNumber(Math.round(product))
     setBar(barResult, product / 1000)
     const weak = factors.filter((f) => f.val < 1)
     factors.forEach((f) => f.el.classList.toggle('is-low', f.val < 1))
     readout && readout.classList.toggle('is-collapsed', weak.length > 0)
     if (hint) {
-      if (weak.length) hint.textContent = `${NAMES[weak[0].key]} is near zero — and × drags the whole product down with it.`
-      else if (product > 550) hint.textContent = 'Compounding on every axis. This is the whole thread in one number.'
-      else if (product > 220) hint.textContent = 'Strong — but the lowest factor is where the next gain hides.'
-      else hint.textContent = 'Multiply, don’t add. Raise the lowest factor first.'
+      if (weak.length) hint.textContent = copy.weak(copy.names[weak[0].key])
+      else if (product > 550) hint.textContent = copy.high
+      else if (product > 220) hint.textContent = copy.medium
+      else hint.textContent = copy.low
     }
   }
 
@@ -56,7 +56,7 @@ export function init(root, { reduced, gsap } = {}) {
     const o = { v: 0 }
     gsap.to(o, {
       v: target, duration: 1.3, delay: 0.2, ease: 'power2.out',
-      onUpdate: () => { if (num) num.textContent = Math.round(o.v).toLocaleString() },
+      onUpdate: () => { if (num) num.textContent = formatNumber(Math.round(o.v)) },
       onComplete: compute,
     })
     gsap.fromTo(barResult, { width: '0%' }, { width: clamp(target / 1000) * 100 + '%', duration: 1.2, delay: 0.2, ease: 'power3.out' })
@@ -73,4 +73,6 @@ export function init(root, { reduced, gsap } = {}) {
   // initialise bars without animation as a baseline (so it's correct before reveal)
   factors.forEach((f) => setBar(f.bar, f.val / 10))
   setBar(barResult, factors.reduce((p, f) => p * f.val, 1) / 1000)
+
+  window.addEventListener('languagechange', compute)
 }

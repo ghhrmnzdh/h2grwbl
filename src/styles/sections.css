@@ -21,6 +21,9 @@
   max-width: 16ch;
   white-space: pre-line;
 }
+html[lang="fa"] .act__title {
+  max-width: 18ch;
+}
 .act__title .hot { color: var(--crimson); }
 .act__standfirst {
   font-family: var(--sans); font-weight: 400;
@@ -46,6 +49,11 @@
   font-size: var(--hero); line-height: 0.9; letter-spacing: -0.03em;
   font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 1;
 }
+html[lang="fa"] .hero__l1,
+html[lang="fa"] .hero__l2 {
+  line-height: 1.04;
+  letter-spacing: 0;
+}
 .hero__l1 { color: var(--ink); }
 .hero__l2 { color: var(--crimson); position: relative; }
 /* misregistration ghost — the print imperfection signature */
@@ -53,6 +61,7 @@
   content: attr(data-text); position: absolute; left: 3px; top: 2px; z-index: -1;
   color: var(--ink); opacity: 0.16; pointer-events: none;
 }
+html[dir="rtl"] .hero__l2::after { left: auto; right: 3px; }
 .hero__sub {
   font-family: var(--display); font-style: italic; font-weight: 400;
   font-variation-settings: 'opsz' 40, 'SOFT' 60, 'WONK' 0;
@@ -90,6 +99,9 @@
   box-shadow: 7px 7px 0 var(--crimson);
   padding: var(--space-m);
 }
+html[lang="fa"] .step__card {
+  box-shadow: -7px 7px 0 var(--crimson);
+}
 .step__n { font-family: var(--mono); font-weight: 700; font-size: var(--step--1); letter-spacing: 0.1em; text-transform: uppercase; color: var(--crimson-deep); display: block; margin-bottom: var(--space-xs); }
 .step__lead { font-family: var(--display); font-weight: 500; font-variation-settings: 'opsz' 40, 'SOFT' 40, 'WONK' 0; font-size: var(--step-1); line-height: 1.25; color: var(--ink); }
 .step__lead .q { color: var(--crimson); }
@@ -118,6 +130,12 @@
 .pullquote .q { color: var(--crimson); }
 .pullquote::before { content: '\201C'; color: var(--crimson); }
 .pullquote::after { content: '\201D'; color: var(--crimson); }
+html[lang="fa"] .pullquote {
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+html[lang="fa"] .pullquote::before { content: '«'; }
+html[lang="fa"] .pullquote::after { content: '»'; }
 
 /* ============================================================
    ACT IV — Leverage quadrant
@@ -161,6 +179,18 @@
 .quadrant__axis--left { left: -0.6rem; top: 50%; transform: translateY(-50%) rotate(-90deg) translateY(-1.3rem); transform-origin: left; }
 .quadrant__caption { position: static; text-align: center; font-family: var(--display); font-style: italic; font-variation-settings: 'opsz' 40, 'SOFT' 50, 'WONK' 0; font-size: var(--step-1); color: var(--ink); opacity: 0; transition: opacity 0.6s var(--ease); max-width: 38ch; margin: 0; }
 .quadrant__caption.is-in { opacity: 1; }
+html[dir="rtl"] .quadrant__axis--top { left: auto; right: 0; }
+html[dir="rtl"] .quadrant__axis--bottom { right: auto; left: 0; }
+html[dir="rtl"] .quadrant__axis--left {
+  left: auto;
+  right: -0.6rem;
+  transform: translateY(-50%) rotate(90deg) translateY(-1.3rem);
+  transform-origin: right;
+}
+@media (max-width: 48rem) {
+  .quadrant__axis--left { left: 0.7rem; }
+  html[dir="rtl"] .quadrant__axis--left { right: 0.7rem; }
+}
 
 /* ============================================================
    ACT V — Judgment (disciplines)
@@ -169,6 +199,7 @@
 .strike-line .struck { position: relative; white-space: nowrap; }
 .strike-line .struck::after { content: ''; position: absolute; left: -0.05em; right: -0.05em; top: 52%; height: 3px; background: var(--crimson); transform: scaleX(0); transform-origin: left; transition: transform 0.6s var(--ease); }
 .strike-line.is-in .struck::after { transform: scaleX(1); }
+html[dir="rtl"] .strike-line .struck::after { transform-origin: right; }
 .disciplines { list-style: none; border-top: 2px solid var(--ink); max-width: 54rem; }
 .discipline { display: grid; grid-template-columns: 3.5rem 1fr auto; align-items: baseline; gap: var(--space-m); padding: var(--space-m) 0; border-bottom: 1px solid var(--rule); font-family: var(--display); font-weight: 500; font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 0; font-size: clamp(1.4rem, 4vw, 2.4rem); color: var(--ink-soft); transition: color 0.4s var(--ease), background 0.4s var(--ease); }
 .discipline.is-in { color: var(--ink); }
@@ -191,6 +222,13 @@
 .spread__quotes { display: flex; flex-direction: column; gap: var(--space-l); }
 .miniquote { font-family: var(--display); font-weight: 500; font-variation-settings: 'opsz' 40, 'SOFT' 40, 'WONK' 0; font-size: var(--step-1); line-height: 1.3; border-left: 4px solid var(--crimson); padding-left: var(--space-m); }
 .miniquote .pn { display: block; font-family: var(--mono); font-weight: 700; font-size: 0.72rem; color: var(--crimson-deep); margin-bottom: 0.4rem; }
+html[dir="rtl"] .ledger { box-shadow: -8px 8px 0 var(--crimson); }
+html[dir="rtl"] .miniquote {
+  border-left: 0;
+  padding-left: 0;
+  border-right: 4px solid var(--crimson);
+  padding-right: var(--space-m);
+}
 
 /* ============================================================
    THE WEALTH EQUATION
@@ -233,7 +271,7 @@
 .pr-head:first-child { padding-top: var(--space-m); }
 .pr-head__num { font-family: var(--display); font-weight: 600; font-variation-settings: 'opsz' 144, 'SOFT' 40, 'WONK' 1; font-size: 1.9rem; line-height: 1; color: var(--crimson-on-ink); }
 .pr-head__title { font-family: var(--display); font-weight: 600; font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 0; font-size: var(--step-1); color: var(--paper); }
-.pr-head__kicker { margin-left: auto; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(241,230,208,0.5); align-self: center; }
+.pr-head__kicker { margin-inline-start: auto; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(241,230,208,0.5); align-self: center; }
 .pr { display: grid; grid-template-columns: 3.4rem 1fr; gap: var(--space-m); padding: var(--space-s) 0; border-bottom: 1px solid rgba(241,230,208,0.16); align-items: baseline; }
 .pr__n { font-family: var(--mono); font-weight: 700; font-size: 0.82rem; color: var(--crimson-on-ink); font-variant-numeric: tabular-nums; }
 .pr__t { font-family: var(--display); font-variation-settings: 'opsz' 40, 'SOFT' 30, 'WONK' 0; font-size: var(--step-0); color: rgba(241,230,208,0.72); line-height: 1.45; transition: color 0.3s var(--ease); text-wrap: pretty; }

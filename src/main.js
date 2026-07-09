@@ -16,7 +16,15 @@ import {
   gsap, ScrollTrigger, SplitText, EASE, STAMP,
   prefersReducedMotion, reduceMQ, createRevealObserver,
 } from './lib/motion.js'
-import { principles, luckLadder, acts } from './data/principles.js'
+import {
+  alternateLanguage,
+  applyLanguage,
+  currentCopy,
+  currentLanguage,
+  formatMoney,
+  formatNumber,
+  getInitialLanguage,
+} from './data/i18n.js'
 
 const root = document.documentElement
 const reduced = () => prefersReducedMotion()
@@ -25,6 +33,8 @@ if (reduced()) root.classList.add('reduce-motion')
 
 /* ---------- data-driven content ---------- */
 function buildLedger() {
+  const { acts, principles, luckLadder, ui } = currentCopy()
+  const rowCode = (n) => ui.principleCode ? ui.principleCode(n) : `N${String(n).padStart(2, '0')}`
   const ol = document.getElementById('ledgerIndex')
   if (ol) {
     ol.innerHTML = acts
@@ -32,7 +42,7 @@ function buildLedger() {
         const title = act.title.replace(/\n/g, ' ')
         const rows = principles
           .filter((p) => p.n >= act.range[0] && p.n <= act.range[1])
-          .map((p) => `<li class="pr reveal"><span class="pr__n mono">N${String(p.n).padStart(2, '0')}</span><span class="pr__t">${p.text}</span></li>`)
+          .map((p) => `<li class="pr reveal"><span class="pr__n mono">${rowCode(p.n)}</span><span class="pr__t">${p.text}</span></li>`)
           .join('')
         return `<li class="pr-head reveal"><span class="pr-head__num">${act.numeral}</span><span class="pr-head__title">${title}</span><span class="pr-head__kicker mono">${act.kicker}</span></li>${rows}`
       })
@@ -41,8 +51,16 @@ function buildLedger() {
   const ladder = document.getElementById('luckLadder')
   if (ladder) {
     ladder.innerHTML = luckLadder
-      .map((r) => `<li class="rung reveal"><span class="rung__n mono">0${r.rung}</span><span><span class="rung__name">${r.name}</span><span class="rung__note">${r.note}</span></span></li>`)
+      .map((r) => `<li class="rung reveal"><span class="rung__n mono">${formatNumber(r.rung).padStart(2, currentLanguage() === 'fa' ? '۰' : '0')}</span><span><span class="rung__name">${r.name}</span><span class="rung__note">${r.note}</span></span></li>`)
       .join('')
+  }
+
+  document.querySelectorAll('#ledgerIndex .pr__n').forEach((el, i) => {
+    el.textContent = rowCode(i + 1)
+  })
+
+  if (root.classList.contains('has-booted')) {
+    document.querySelectorAll('#ledgerIndex .reveal, #luckLadder .reveal').forEach((el) => el.classList.add('is-in'))
   }
 }
 
@@ -74,9 +92,9 @@ function initReveals() {
   if (rate) {
     const target = +rate.dataset.target || 0
     const rio = createRevealObserver((el) => {
-      if (reduced()) { el.textContent = '$' + target.toLocaleString(); return }
+      if (reduced()) { el.textContent = formatMoney(target); return }
       const o = { v: 0 }
-      gsap.to(o, { v: target, duration: 1.3, ease: EASE, onUpdate: () => { el.textContent = '$' + Math.round(o.v).toLocaleString() } })
+      gsap.to(o, { v: target, duration: 1.3, ease: EASE, onUpdate: () => { el.textContent = formatMoney(Math.round(o.v)) } })
     }, { threshold: 0.8 })
     rio.observe(rate)
   }
@@ -130,11 +148,20 @@ function runIntro() {
   if (lenis) lenis.stop()
   const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve()
 
-  if (reduced()) { if (count) count.textContent = '38'; fontsReady.finally(finish); return }
+  if (reduced()) { if (count) count.textContent = formatNumber(38); fontsReady.finally(finish); return }
 
   const proxy = { n: 0 }
   const tl = gsap.timeline()
-  tl.to(proxy, { n: 38, duration: 1.1, ease: 'power1.inOut', onUpdate: () => { if (count) count.textContent = String(Math.round(proxy.n)).padStart(2, '0') } })
+  tl.to(proxy, {
+    n: 38,
+    duration: 1.1,
+    ease: 'power1.inOut',
+    onUpdate: () => {
+      if (!count) return
+      const lang = currentLanguage()
+      count.textContent = formatNumber(Math.round(proxy.n), lang).padStart(2, lang === 'fa' ? '۰' : '0')
+    },
+  })
   tl.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'power1.inOut' }, 0)
 
   Promise.all([fontsReady, tl.then ? tl.then() : Promise.resolve()])
@@ -176,14 +203,54 @@ reduceMQ.addEventListener &&
 let resizeRaf
 addEventListener('resize', () => { cancelAnimationFrame(resizeRaf); resizeRaf = requestAnimationFrame(() => ScrollTrigger.refresh()) }, { passive: true })
 
+/* ---------- language switch ---------- */
+function initLanguageSwitch() {
+  const button = document.getElementById('languageToggle')
+  const press = document.getElementById('languagePress')
+  const sheet = press && press.querySelector('.language-press__sheet')
+  if (!button) return
+
+  const commit = (lang) => {
+    applyLanguage(lang)
+    buildLedger()
+    dispatchEvent(new CustomEvent('languagechange', { detail: { lang } }))
+    ScrollTrigger.refresh()
+  }
+
+  button.addEventListener('click', () => {
+    const lang = alternateLanguage()
+    if (reduced() || !press || !sheet) {
+      commit(lang)
+      return
+    }
+
+    root.classList.add('is-language-changing')
+    const dir = lang === 'fa' ? 1 : -1
+    gsap.timeline({
+      defaults: { ease: EASE },
+      onComplete: () => root.classList.remove('is-language-changing'),
+    })
+      .set(press, { display: 'grid', autoAlpha: 0 })
+      .set(sheet, { xPercent: 120 * dir, rotate: 0.6 * dir })
+      .to(press, { autoAlpha: 1, duration: 0.16 })
+      .to(sheet, { xPercent: 0, rotate: 0, duration: 0.46, ease: STAMP }, '<')
+      .add(() => commit(lang), '+=0.04')
+      .to(sheet, { xPercent: -120 * dir, rotate: -0.5 * dir, duration: 0.42, ease: 'power3.in' }, '+=0.12')
+      .to(press, { autoAlpha: 0, duration: 0.16, onComplete: () => gsap.set(press, { display: 'none' }) }, '-=0.1')
+  })
+}
+
 /* ---------- go ---------- */
 function boot() {
+  applyLanguage(getInitialLanguage(), { persist: false })
   buildLedger()
+  initLanguageSwitch()
   initScroll()
   initReveals()
   initSplitQuotes()
   initSections()
   runIntro()
+  root.classList.add('has-booted')
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot)
 else boot()

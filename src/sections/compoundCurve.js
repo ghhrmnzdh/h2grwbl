@@ -2,6 +2,7 @@
 // stays low while (1+r)^n bends into a crimson hockey stick. Scrub it: the last
 // decade dwarfs the first.
 import { clamp, smoothstep } from '../lib/motion.js'
+import { formatNumber, getVisualCopy, isPersian } from '../data/i18n.js'
 
 const N = 40
 const R = 0.15
@@ -29,8 +30,12 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
 
   const X = (n) => padL + (n / N) * (W - padL - padR)
   const Y = (v) => H - padB - (v / maxVal) * (H - padT - padB)
+  const fontSans = () => isPersian() ? "'Vazirmatn', 'Noto Sans Arabic', Tahoma, sans-serif" : "'Space Mono', monospace"
+  const fontDisplay = () => isPersian() ? "'Vazirmatn', 'Noto Naskh Arabic', Tahoma, sans-serif" : "'Fraunces Variable', Georgia, serif"
 
   function draw(p) {
+    const strings = getVisualCopy().compound
+    const rtl = isPersian()
     ctx.clearRect(0, 0, W, H)
     const n = p * N
 
@@ -38,18 +43,20 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
     ctx.strokeStyle = INK + '0.55)'; ctx.lineWidth = 1.5
     ctx.beginPath(); ctx.moveTo(padL, padT - 6); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB); ctx.stroke()
 
-    ctx.font = "700 11px 'Space Mono', monospace"
+    ctx.direction = rtl ? 'rtl' : 'ltr'
+    ctx.font = `700 11px ${fontSans()}`
     ctx.fillStyle = INK + '0.5)'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-    for (const yr of [0, 10, 20, 30, 40]) ctx.fillText(yr === 0 ? '0' : yr + 'Y', X(yr), H - padB + 8)
+    for (const yr of [0, 10, 20, 30, 40]) ctx.fillText(yr === 0 ? formatNumber(0) : `${formatNumber(yr)}${rtl ? ' ' : ''}${strings.yearSuffix}`, X(yr), H - padB + 8)
     ctx.save(); ctx.translate(padL - 36, padT + (H - padT - padB) / 2); ctx.rotate(-Math.PI / 2)
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('OUTCOME', 0, 0); ctx.restore()
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(strings.outcome, 0, 0); ctx.restore()
 
     // linear "effort" reference
     ctx.strokeStyle = INK + '0.34)'; ctx.setLineDash([4, 5]); ctx.lineWidth = 1.5
     ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(N), Y(N)); ctx.stroke()
     ctx.setLineDash([])
-    ctx.textAlign = 'left'; ctx.fillStyle = INK + '0.5)'
-    ctx.fillText('LINEAR EFFORT', X(N) - 96, Y(N) - 16)
+    ctx.direction = rtl ? 'rtl' : 'ltr'
+    ctx.textAlign = rtl ? 'right' : 'left'; ctx.fillStyle = INK + '0.5)'
+    ctx.fillText(strings.linear, rtl ? X(N) : X(N) - 96, Y(N) - 16)
 
     // compound curve, drawn to progress
     ctx.strokeStyle = CRIMSON; ctx.lineWidth = 3
@@ -73,12 +80,13 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
     const av = smoothstep(clamp((p - 0.38) / 0.22))
     if (av > 0.01) {
       const fs = Math.min(38, Math.max(20, W * 0.036))
-      ctx.font = `italic 500 ${fs}px 'Fraunces Variable', Georgia, serif`
+      ctx.font = `${rtl ? '500' : 'italic 500'} ${fs}px ${fontDisplay()}`
       ctx.fillStyle = `rgba(32,21,14,${0.9 * av})`
-      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
-      const ax = X(3.5), ay = padT + (H - padT - padB) * 0.3
-      ctx.fillText('long-term games,', ax, ay)
-      ctx.fillText('with long-term people', ax, ay + fs * 1.05)
+      ctx.direction = rtl ? 'rtl' : 'ltr'
+      ctx.textAlign = rtl ? 'right' : 'left'; ctx.textBaseline = 'alphabetic'
+      const ax = rtl ? X(17) : X(3.5), ay = padT + (H - padT - padB) * 0.3
+      ctx.fillText(strings.line1, ax, ay)
+      ctx.fillText(strings.line2, ax, ay + fs * 1.05)
     }
 
     // riding dot + live multiple readout
@@ -87,18 +95,20 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
       const dx = X(n), dy = Y(v)
       ctx.fillStyle = CRIMSON; ctx.beginPath(); ctx.arc(dx, dy, 6, 0, Math.PI * 2); ctx.fill()
       ctx.fillStyle = '#f1e6d0'; ctx.beginPath(); ctx.arc(dx, dy, 2.4, 0, Math.PI * 2); ctx.fill()
-      ctx.font = "700 22px 'Space Mono', monospace"
+      ctx.direction = rtl ? 'rtl' : 'ltr'
+      ctx.font = `700 22px ${fontSans()}`
       ctx.fillStyle = '#20150e'; ctx.textAlign = dx > W * 0.7 ? 'right' : 'left'
       const tx = dx > W * 0.7 ? dx - 15 : dx + 15
-      ctx.fillText('×' + v.toFixed(v < 10 ? 1 : 0), tx, dy - 12)
-      ctx.font = "700 11px 'Space Mono', monospace"; ctx.fillStyle = INK + '0.6)'
-      ctx.fillText('YEAR ' + Math.round(n), tx, dy + 7)
+      ctx.fillText('×' + formatNumber(Number(v.toFixed(v < 10 ? 1 : 0))), tx, dy - 12)
+      ctx.font = `700 11px ${fontSans()}`; ctx.fillStyle = INK + '0.6)'
+      ctx.fillText(`${strings.year} ${formatNumber(Math.round(n))}`, tx, dy + 7)
     }
   }
 
   resize()
   let current = 0
   window.addEventListener('resize', () => { resize(); draw(current) }, { passive: true })
+  window.addEventListener('languagechange', () => { resize(); draw(current) })
 
   if (reduced) { current = 1; draw(1); (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => draw(current)); return }
   draw(0)
