@@ -23,19 +23,42 @@ html[lang="fa"] {
   --display: var(--display-fa);
   --sans: var(--sans-fa);
   --mono: var(--mono-fa);
+
+  /* Persian is its own edition, not a translation laid over Latin metrics.
+     Vazirmatn body reads a touch larger and much airier than Space Grotesk;
+     Markazi Text (display) runs small, so headline steps get extra room. */
+  --step--1: clamp(0.86rem, 0.82rem + 0.2vw, 0.98rem);
+  --step-0: clamp(1.12rem, 1.06rem + 0.3vw, 1.3rem);
+  --step-1: clamp(1.42rem, 1.26rem + 0.78vw, 1.9rem);
+  --step-2: clamp(1.9rem, 1.55rem + 1.6vw, 2.9rem);
+  --act-title: clamp(3rem, 1.6rem + 6.2vw, 7.4rem);
+  --hero: clamp(4rem, 1.3rem + 13vw, 14.5rem);
 }
 
 html[lang="fa"] body {
   direction: rtl;
   text-align: start;
+  line-height: 1.85;          /* connected script wants open leading */
+  font-weight: 350;
 }
 
 html[lang="fa"] h1,
 html[lang="fa"] h2,
 html[lang="fa"] h3 {
-  line-height: 1.12;
-  letter-spacing: 0;
+  line-height: 1.28;          /* Markazi ascenders/nastaliq curves need air */
+  letter-spacing: 0;          /* never track Arabic script */
+  font-weight: 700;           /* Markazi tops out at 700 — carry Fraunces' heft */
+  font-variation-settings: normal;
 }
+
+/* Arabic script has no italic — kill faux-oblique wherever Latin leans. */
+html[lang="fa"] em,
+html[lang="fa"] i,
+html[lang="fa"] .amp,
+html[lang="fa"] .hero__sub,
+html[lang="fa"] .quadrant__caption,
+html[lang="fa"] .eq-readout__hint,
+html[lang="fa"] .act__standfirst em { font-style: normal; }
 
 /* Lenis */
 html.lenis, html.lenis body { height: auto; }
@@ -190,6 +213,10 @@ html[lang="fa"] .language-toggle {
   letter-spacing: 0;
   text-transform: none;
 }
+
+/* Smooth, contained language cross-dissolve (see initLanguageSwitch) */
+html.is-language-changing #main { will-change: opacity, transform; }
+html.is-language-changing #main * { pointer-events: none; }
 
 .language-press {
   position: fixed;

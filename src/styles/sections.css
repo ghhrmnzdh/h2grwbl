@@ -23,6 +23,7 @@
 }
 html[lang="fa"] .act__title {
   max-width: 18ch;
+  font-weight: 700;
 }
 .act__title .hot { color: var(--crimson); }
 .act__standfirst {
@@ -53,6 +54,7 @@ html[lang="fa"] .hero__l1,
 html[lang="fa"] .hero__l2 {
   line-height: 1.04;
   letter-spacing: 0;
+  font-weight: 700;
 }
 .hero__l1 { color: var(--ink); }
 .hero__l2 { color: var(--crimson); position: relative; }

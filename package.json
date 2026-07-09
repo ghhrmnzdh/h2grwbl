@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource-variable/markazi-text": "^5.2.9",
     "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource-variable/vazirmatn": "^5.2.8",
     "@fontsource/space-mono": "^5.2.9",
     "gsap": "^3.12.5",
     "lenis": "^1.1.18"

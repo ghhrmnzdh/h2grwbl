@@ -30,8 +30,8 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
 
   const X = (n) => padL + (n / N) * (W - padL - padR)
   const Y = (v) => H - padB - (v / maxVal) * (H - padT - padB)
-  const fontSans = () => isPersian() ? "'Vazirmatn', 'Noto Sans Arabic', Tahoma, sans-serif" : "'Space Mono', monospace"
-  const fontDisplay = () => isPersian() ? "'Vazirmatn', 'Noto Naskh Arabic', Tahoma, sans-serif" : "'Fraunces Variable', Georgia, serif"
+  const fontSans = () => isPersian() ? "'Vazirmatn Variable', Vazirmatn, Tahoma, sans-serif" : "'Space Mono', monospace"
+  const fontDisplay = () => isPersian() ? "'Markazi Text Variable', 'Markazi Text', Tahoma, serif" : "'Fraunces Variable', Georgia, serif"
 
   function draw(p) {
     const strings = getVisualCopy().compound

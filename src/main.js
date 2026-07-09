@@ -6,6 +6,10 @@ import '@fontsource-variable/fraunces/wght-italic.css'
 import '@fontsource-variable/space-grotesk/index.css'
 import '@fontsource/space-mono/400.css'
 import '@fontsource/space-mono/700.css'
+/* Persian edition — Markazi Text (editorial display, the Fraunces analog)
+   + Vazirmatn (clean sans/UI, the Space Grotesk analog). */
+import '@fontsource-variable/markazi-text/index.css'
+import '@fontsource-variable/vazirmatn/index.css'
 
 import './styles/tokens.css'
 import './styles/base.css'
@@ -206,8 +210,7 @@ addEventListener('resize', () => { cancelAnimationFrame(resizeRaf); resizeRaf = 
 /* ---------- language switch ---------- */
 function initLanguageSwitch() {
   const button = document.getElementById('languageToggle')
-  const press = document.getElementById('languagePress')
-  const sheet = press && press.querySelector('.language-press__sheet')
+  const content = document.getElementById('main')
   if (!button) return
 
   const commit = (lang) => {
@@ -218,25 +221,24 @@ function initLanguageSwitch() {
   }
 
   button.addEventListener('click', () => {
+    if (root.classList.contains('is-language-changing')) return
     const lang = alternateLanguage()
-    if (reduced() || !press || !sheet) {
+    if (reduced() || !content) {
       commit(lang)
       return
     }
 
+    // Subtle cross-dissolve: the page dips out, swaps edition under cover of
+    // the fade (hiding the reflow), and settles back in. No curtain, no stamp.
     root.classList.add('is-language-changing')
-    const dir = lang === 'fa' ? 1 : -1
     gsap.timeline({
       defaults: { ease: EASE },
       onComplete: () => root.classList.remove('is-language-changing'),
     })
-      .set(press, { display: 'grid', autoAlpha: 0 })
-      .set(sheet, { xPercent: 120 * dir, rotate: 0.6 * dir })
-      .to(press, { autoAlpha: 1, duration: 0.16 })
-      .to(sheet, { xPercent: 0, rotate: 0, duration: 0.46, ease: STAMP }, '<')
-      .add(() => commit(lang), '+=0.04')
-      .to(sheet, { xPercent: -120 * dir, rotate: -0.5 * dir, duration: 0.42, ease: 'power3.in' }, '+=0.12')
-      .to(press, { autoAlpha: 0, duration: 0.16, onComplete: () => gsap.set(press, { display: 'none' }) }, '-=0.1')
+      .to(content, { autoAlpha: 0, y: -7, duration: 0.26, ease: 'power2.in' })
+      .add(() => commit(lang))
+      .set(content, { y: 9 })
+      .to(content, { autoAlpha: 1, y: 0, duration: 0.44 })
   })
 }
 

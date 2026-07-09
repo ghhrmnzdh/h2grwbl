@@ -32,8 +32,8 @@ export function init(root, { reduced, ScrollTrigger } = {}) {
   const st = { activity: 0, lastY: window.scrollY, t: 0, wealth: 0, fill: 0, money: 940, drips: [], banks: [] }
 
   const fmt = (n) => formatNumber(Math.floor(n))
-  const fontSans = () => isPersian() ? "'Vazirmatn', 'Noto Sans Arabic', Tahoma, sans-serif" : "'Space Mono', monospace"
-  const fontDisplay = () => isPersian() ? "'Vazirmatn', 'Noto Naskh Arabic', Tahoma, sans-serif" : "'Fraunces Variable', Georgia, serif"
+  const fontSans = () => isPersian() ? "'Vazirmatn Variable', Vazirmatn, Tahoma, sans-serif" : "'Space Mono', monospace"
+  const fontDisplay = () => isPersian() ? "'Markazi Text Variable', 'Markazi Text', Tahoma, serif" : "'Fraunces Variable', Georgia, serif"
 
   function label(text, x, y, color, size = 13, w = 700) {
     const rtl = isPersian()

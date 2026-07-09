@@ -26,9 +26,11 @@
   --display: 'Fraunces Variable', 'Fraunces', 'Times New Roman', serif;
   --sans: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
   --mono: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --display-fa: 'Vazirmatn', 'Noto Naskh Arabic', 'Noto Sans Arabic', 'Tahoma', system-ui, sans-serif;
-  --sans-fa: 'Vazirmatn', 'Noto Sans Arabic', 'Tahoma', system-ui, sans-serif;
-  --mono-fa: 'Vazirmatn', 'Noto Sans Arabic', 'Tahoma', ui-monospace, monospace;
+  /* Persian pairing — Markazi Text carries the editorial warmth Fraunces gives
+     the Latin edition; Vazirmatn is the clean, even-colour text/UI face. */
+  --display-fa: 'Markazi Text Variable', 'Markazi Text', 'Noto Naskh Arabic', 'Tahoma', serif;
+  --sans-fa: 'Vazirmatn Variable', 'Vazirmatn', 'Noto Sans Arabic', 'Tahoma', system-ui, sans-serif;
+  --mono-fa: 'Vazirmatn Variable', 'Vazirmatn', 'Noto Sans Arabic', 'Tahoma', ui-monospace, monospace;
 
   /* Fraunces character: soft terminals + a touch of wonk = hand-set warmth */
   --fr-soft: 40;
